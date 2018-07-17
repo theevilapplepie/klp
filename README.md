@@ -29,8 +29,6 @@ WELL IT'S BASICALLY THE SAME AS PERL
 ## Variables
 Variables are used to store and manage runtime data within the language.
 
-### Naming
-
 ### Data Types
 A Data Type defines structure or classification for a given variable. 
 
@@ -40,11 +38,11 @@ There are 5 Types:
 * String - Text or Binary Data ( Prefix: ^ | Creator: "" or '' )
 * Array - Ordered List ( Prefix: @ | Creator: [] )
 * Hash - Key/Value Store ( Prefix: % | Creator: {} )
-* Reference - Alias to defined data ( Prefix: $ )
+* Reference - Alias to defined data ( Prefix: $ ) -- This is covered in it's own section
 
 Regarding References:
 
->You should always use the Reference data type when interacting with data in your code, including the use of "Creators" with the Reference type to define a variable. 
+>You should always use the Reference data type when interacting with data in your code, by using the "Creators" for other data types with the Reference type to define a variable. 
 >
 >There _is_ one edge case where you _could_ self optimize by using non-reference data types directly, given that:
 >>The variable is created within a limited scope and is not passed outside of that scope (including to subroutines/functions).  
@@ -89,9 +87,19 @@ printn $varthree;
 WoohooWoohoo
 ```
 
-###### Array Interaction  
-Single Element
+###### Retrieval
+Whole String  
+>CODE  
+```
+my $varone = "Woohoo";
+printn $varone;
+```
+>OUTPUT
+```
+Woohoo
+```
 
+Single Character  
 >CODE  
 ```
 my $varone = "Woohoo";
@@ -102,7 +110,7 @@ printn $varone[0];
 W
 ```
 
-Element Range
+Character Range  
 >CODE  
 ```
 my $varone = "Woohoo";
@@ -121,57 +129,205 @@ Woo
 **Internals:** Linked List of References  
 
 ##### Code Examples
+###### Direct Definition
+>CODE  
+```
+my @var = qw(woo hoo);
+printn @var[0]
+```
+>OUTPUT  
+```
+woo
+```
 
----
-SCRATCHPAD  
-Storing in Github so it doesn't disappear.
-~~~~
-== Hash
-  Description: Key/Value Pair where Key is Scalar and Value is Reference
-  Symbol: %
-  Value Type =  HashMap
+###### Indirect Definition
+>CODE  
+```
+my $var = ['woo',"hoo"];
+printn $var[0];
+```
+>OUTPUT  
+```
+woo
+```
 
-= Variable Modifiers (Prefix Symbols)
-These are used on the right hand side of an assignment or during reads
+###### Retrieval
+Single Value  
+>CODE  
+```
+my $var = ['woo',"hoo"];
+printn $var[0];
+```
+>OUTPUT  
+```
+woo
+```
 
-Without Prefix = Value Type
-\ = Set Value to Value
-& = Set Value to Reference
+Length  
+>CODE  
+```
+my $var = ['woo',"hoo"];
+printn len($varone);
+```
+>OUTPUT  
+```
+2
+2
+```
+
+Value Range (w/join to string)  
+>CODE  
+```
+my $var = ['woo',"hoo"];
+print $varone[0..1,"\n"];
+print $varone[0..,"\n"];
+```
+>OUTPUT  
+```
+woo
+hoo
+woo
+hoo
+```
+
+#### Hash
+**Type Name:** Hash  
+**Description:** String Indexed List  
+**Symbol:** %  
+**Creator:** {}  
+**Internals:** Linked List with References  
 
 
-= References
+##### Code Examples
+###### Direct Definition
+>CODE  
+```
+my %var = ( 'woo' => "hoo" );
+printn %var{'woo'};
+```
+>OUTPUT  
+```
+hoo
+```
 
+###### Indirect Definition
+>CODE  
+```
+my $var = { "woo" => 'hoo' };
+printn $var{'woo'};
+```
+>OUTPUT  
+```
+hoo
+```
 
-== Code Examples
+###### Retrieval
+Value from Key  
+>CODE  
+```
+my $var = { "woo" => 'hoo' };
+printn $var{'woo'};
+```
+>OUTPUT  
+```
+hoo
+```
 
-=== Initialization
+Key Listing  
+>CODE  
+```
+my $var = { "woo" => 'hoo' };
+my $keys = keys($var); # This is an array w/ Keys now :)
+print $keys[..,"\n"];
+```
+>OUTPUT  
+```
+woo
+```
 
-==== Scalar
-===== Direct Creation
-===== A
-==== 
-my $var = "wow this is fun";
+### References
+References are defined in this doc as "aliases" to defined data, however the scope and utilziation of these is far more complciated.
 
-==== Reference Assignment
-my $var = "I love klp!";
-my $newvar = $var;
-$newvar = "It does cool stuff!";
-printn $var;
+#### Why do I need to use references?
+Within this language nothing is passed by value, everything is passed as a reference handle.
 
-OUTPUT:
- It does cool stuff!
+That means you cannot pass a variable or have a defined variable leave your scope ( in many cases including to builtin methods ) without it being in a reference.
 
-==== Copying Value
-my $var = "I love klp!";
-my $newvar = \$var;
-$newvar = "Wow!";
+The reason for this is so "by default" we are not copying around data, we are sending pointers.
 
-printn "VAR: $var";
-printn "NEWVAR: $newvar";
+#### What are references?
+References are handles which have a given name and no "real" value, they're specialized pointers.
 
-OUTPUT:
- VAR: I love klp!
- NEWVAR: Wow!
+#### Reference Modifiers
+There are several prefixes you can use which will modify the behaviour of a reference
 
-==== 
-~~~~
+"\" - Tells assignments to set the "value" of the assignment to the "value" of the reference.
+      ( See: Usage Examples, Getting the Value from a Reference )
+      In a non-assignment context, such as passing to a method, it will create a "new" anonymous variable with a matching data type, then pass that reference forward. ( Try to avoid )
+
+"&" - Tells assignments to set the "value" of the assignment to the reference,
+      rather than assigning the reference on the variable. ( This should rarely be used )
+      In a non-assignment context, such as passing to a method, it will unset the "read only" flag on the reference and allow the destination method to perform modifications.
+
+#### Usage Examples
+##### Passing References to Methods
+
+There is a huge language oddity you should be aware of when passing data to methods, the passed reference becomes 'read only' from the scope of the target method you're calling.
+
+This avoids "accidental data overwrite" or otherwise unobvious stuff, but it's very simple to mark as read-write when you need to.
+
+To mark as read-write use "&", which is the "set the value to the reference" prefix.
+
+###### Read-Only Error Example
+>CODE  
+```
+sub waffles($syrup =~ /\S+/) {
+	printn $syrup;
+	$syrup = "OMG";
+	printn $syrup;
+}
+my $var = "omg";
+waffles($var);
+```
+>OUTPUT  
+```
+omg
+[!break:err@(anonymous:3) "write attempted on read-only reference" ]> line
+  $syrup = "OMG";
+```
+
+###### Writable Reference Example
+>CODE  
+```
+sub waffles($syrup =~ /\S+/) {
+	printn $syrup;
+	$syrup = "OMG";
+	printn $syrup;
+}
+my $var = "omg";
+waffles(&$var);
+```
+>OUTPUT  
+```
+omg
+OMG
+```
+
+##### Getting the Value from a Reference
+When dealing with references, especially during assignment of other variables, you may want to make a "copy" of the value rather than create a new reference to the same data.
+
+This is simple to do, we use "\" prefix, which is the "set the value to the value of the reference" modifier.
+
+>CODE  
+```
+my $sheep = "baaaa";
+my $clone = \$sheep;
+$clone = "woof";
+printn "The Sheep Says: $sheep";
+printn "The Bad Sheep Says: $clone";
+```
+>OUTPUT  
+```
+The Sheep Says: baaaa
+The Bad Sheep Says: woof
+```
