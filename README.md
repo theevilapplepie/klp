@@ -261,12 +261,12 @@ References are handles which have a given name and no "real" value, they're spec
 #### Reference Modifiers
 There are several prefixes you can use which will modify the behaviour of a reference
 
-"\\" - Tells assignments to set the "value" of the assignment to the "value" of the reference.
-      ( See: Usage Examples, Getting the Value from a Reference )
+"\\" - Tells assignments to set the "value" of the assignment to the "value" of the reference.  
+      ( See: Usage Examples, Getting the Value from a Reference )  
       In a non-assignment context, such as passing to a method, it will create a "new" anonymous variable with a matching data type, then pass that reference forward. ( Try to avoid )
 
 "&" - Tells assignments to set the "value" of the assignment to the reference,
-      rather than assigning the reference on the variable. ( This should rarely be used )
+      rather than assigning the reference on the variable. ( This should rarely be used )  
       In a non-assignment context, such as passing to a method, it will unset the "read only" flag on the reference and allow the destination method to perform modifications.
 
 #### Usage Examples
