@@ -261,7 +261,7 @@ References are handles which have a given name and no "real" value, they're spec
 #### Reference Modifiers
 There are several prefixes you can use which will modify the behaviour of a reference
 
-"\" - Tells assignments to set the "value" of the assignment to the "value" of the reference.
+"\\" - Tells assignments to set the "value" of the assignment to the "value" of the reference.
       ( See: Usage Examples, Getting the Value from a Reference )
       In a non-assignment context, such as passing to a method, it will create a "new" anonymous variable with a matching data type, then pass that reference forward. ( Try to avoid )
 
@@ -316,7 +316,7 @@ OMG
 ##### Getting the Value from a Reference
 When dealing with references, especially during assignment of other variables, you may want to make a "copy" of the value rather than create a new reference to the same data.
 
-This is simple to do, we use "\" prefix, which is the "set the value to the value of the reference" modifier.
+This is simple to do, we use "\\" prefix, which is the "set the value to the value of the reference" modifier.
 
 >CODE  
 ```
